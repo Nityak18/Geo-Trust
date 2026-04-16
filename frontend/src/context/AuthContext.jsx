@@ -12,23 +12,23 @@ export const AuthProvider = ({ children }) => {
   const login = (method, data) => {
     setUser({ 
         name: data.name || 'Demo User', 
-        email: data.email || 'user@chaindeed.gov.in',
+        email: data.email || 'user@geo-trust.gov.in',
         address: '0x7f3a...c8d2' // Single default wallet session
     });
     setIsAuthenticated(true);
-    localStorage.setItem('chaindeed_session', 'active');
+    localStorage.setItem('geotrust_session', 'active');
   };
 
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('chaindeed_session');
+    localStorage.removeItem('geotrust_session');
   };
 
   useEffect(() => {
-    const session = localStorage.getItem('chaindeed_session');
+    const session = localStorage.getItem('geotrust_session');
     if (session) {
-      setUser({ name: 'Demo User', email: 'user@chaindeed.gov.in', address: '0x7f3a...c8d2' });
+      setUser({ name: 'Demo User', email: 'user@geo-trust.gov.in', address: '0x7f3a...c8d2' });
       setIsAuthenticated(true);
     }
   }, []);

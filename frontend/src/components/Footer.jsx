@@ -6,10 +6,10 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 md:space-y-0 md:flex md:justify-between md:items-center">
         <div className="flex flex-col md:items-start text-center md:text-left">
           <p className="font-serif font-bold text-xl text-white tracking-tight flex items-center justify-center md:justify-start gap-2">
-            <span>Chain<span className="text-accent-orange">Deed</span></span>
+            <span>Geo<span className="text-accent-orange">Trust</span></span>
             <span className="font-sans font-normal text-sm px-2 py-0.5 rounded-full bg-white/10 ml-2">Registry</span>
           </p>
-          <p className="text-sm mt-2 text-white/60">© 2026 Government of India (Demo)</p>
+          <p className="text-sm mt-2 text-white/60">© {new Date().getFullYear()} Government of India (Secure Node)</p>
         </div>
         <div className="flex flex-col md:items-end text-center md:text-right text-sm">
           <p className="flex items-center justify-center gap-2">

@@ -2,8 +2,16 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Search, ChevronRight, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useRegistry } from '../context/RegistryContext';
 
 const LandingPage = () => {
+  const { properties, transactions } = useRegistry();
+  
+  // Calculate real-time stats
+  const totalParcels = 10520 + properties.length; // Base static + dynamic
+  const totalValue = 3404 + (properties.length * 0.5); // Base static + dynamic estimate
+  const avgBlockTime = '8s';
+  const resolutionRate = '70%';
   return (
     <div className="min-h-screen pb-20">
       {/* Hero Section */}
@@ -30,7 +38,7 @@ const LandingPage = () => {
               </div>
               
               <h1 className="text-5xl md:text-7xl font-serif font-bold text-primary-main leading-[1.1] mb-6">
-                Secure Land Ownership on the <span className="italic text-accent-orange font-light">Chain</span>
+                Secure Land Ownership with <span className="italic text-accent-orange font-light">Geo-Trust</span>
               </h1>
               
               <p className="text-lg md:text-xl text-textPrimary/80 mb-10 leading-relaxed font-medium">
@@ -159,10 +167,10 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: '🏛', value: '20,62,339', label: 'Parcels Registered on Chain', color: 'text-primary-main' },
-              { icon: '₹', value: '₹3,404Cr', label: 'Property Value Secured', color: 'text-accent-orange' },
-              { icon: '✅', value: '70%', label: 'Dispute Resolution Rate', color: 'text-accent-teal' },
-              { icon: '⚡', value: '8s', label: 'Average Block Confirmation', color: 'text-status-transferred' },
+              { icon: '🏛', value: totalParcels.toLocaleString('en-IN'), label: 'Parcels Registered on Geo-Trust', color: 'text-primary-main' },
+              { icon: '₹', value: `₹${totalValue}Cr`, label: 'Property Value Secured', color: 'text-accent-orange' },
+              { icon: '✅', value: resolutionRate, label: 'Dispute Resolution Rate', color: 'text-accent-teal' },
+              { icon: '⚡', value: avgBlockTime, label: 'Current Block Confirmation', color: 'text-status-transferred' },
             ].map((stat, i) => (
               <motion.div 
                 key={i}

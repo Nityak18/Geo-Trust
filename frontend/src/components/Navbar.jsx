@@ -24,8 +24,8 @@ const Navbar = () => {
           
           {/* Logo */}
           <Link to="/" className="flex items-center gap-1 focus:outline-none group">
-            <span className="font-serif text-2xl font-bold text-primary-main tracking-tight group-hover:scale-105 transition-transform">Chain</span>
-            <span className="font-serif text-2xl font-bold text-accent-orange tracking-tight group-hover:scale-105 transition-transform">Deed</span>
+            <span className="font-serif text-2xl font-bold text-primary-main tracking-tight group-hover:scale-105 transition-transform">Geo</span>
+            <span className="font-serif text-2xl font-bold text-accent-orange tracking-tight group-hover:scale-105 transition-transform">Trust</span>
           </Link>
 
           {/* Desktop Nav */}

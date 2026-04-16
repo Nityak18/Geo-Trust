@@ -1,6 +1,6 @@
-# 🛡️ ChainDeed: Decentralized Land Registry System
+# 🛡️ Geo-Trust: Decentralized Land Registry System
 
-ChainDeed is a high-fidelity blockchain-based simulation for modern land registries. It replaces traditional, slow, and fraud-prone paper systems with an immutable, transparent, and cryptographically secured digital ledger.
+Geo-Trust is a high-fidelity blockchain-based simulation for modern land registries. It replaces traditional, slow, and fraud-prone paper systems with an immutable, transparent, and cryptographically secured digital ledger.
 
 ## 🚀 Key Features
 

@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-textPrimary font-sans antialiased overflow-x-hidden;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-surface/80 backdrop-blur-md border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl;
+  }
+  
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full bg-primary-main text-white font-medium transition-all hover:bg-primary-dark hover:shadow-lg hover:-translate-y-0.5 focus:ring-2 focus:ring-primary-main/50 focus:outline-none;
+  }
+  
+  .btn-accent {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full bg-accent-orange text-white font-medium transition-all hover:bg-[#d6850a] hover:shadow-lg hover:shadow-accent-orange/20 hover:-translate-y-0.5 focus:ring-2 focus:ring-accent-orange/50 focus:outline-none;
+  }
+  
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-primary-main text-primary-main font-medium transition-all hover:bg-primary-main hover:text-white focus:ring-2 focus:ring-primary-main/50 focus:outline-none bg-transparent;
+  }
+  
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider;
+  }
+}
+
+.gradient-text {
+  @apply text-transparent bg-clip-text bg-gradient-to-r;
+}

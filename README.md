@@ -1,87 +1,100 @@
-# 🛡️ Geo-Trust: Decentralized Land Registry System
+# 🛡️ Geo-Trust: Next-Gen Decentralized Land Registry
 
-Geo-Trust is a high-fidelity blockchain-based simulation for modern land registries. It replaces traditional, slow, and fraud-prone paper systems with an immutable, transparent, and cryptographically secured digital ledger.
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind--CSS-3.4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🚀 Key Features
-
-### 1. 📂 Global Property Registry
-- **Digital Deeds**: Every property is represented as a unique on-chain asset (simulated NFT).
-- **Dynamic Valuation**: Real-time property value tracking and status updates (Verified, Pending, Transferred).
-- **Rich Visualization**: Beautifully rendered property layouts and parcel IDs.
-
-### 2. 🕵️ Immutable Verification & Lifecycle History
-- **Searchable Ledger**: Verify any property deed instantly using a Transaction Hash or Survey Number.
-- **Chain of Custody**: View the **full historical lifecycle** of any property. Every ownership change is timestamped with second-precision accuracy and linked to its original blockchain block.
-- **IPFS Metadata**: View the underlying raw JSON metadata that would be stored on IPFS.
-
-### 3. 💸 Smart Transfer Protocol
-- **Three-Step Minting**: A multi-step stepper (Sign → Review → Mint) that simulates a real blockchain transaction workflow.
-- **Detailed Metadata**: Transfers now capture **Land Classification**, **Area Size**, and **Regional District**.
-- **Validator Simulation**: Transactions include an 8-second "Validator Consensus" delay.
-- **Dynamic Icons**: Property card visuals automatically adjust based on the selected land type.
-
-### 4. 🌐 Block Explorer & Search
-- **Live Ledger Feed**: A real-time table showing the latest activities across the entire network.
-- **Instant Global Search**: High-precision search bars in both the **Explorer** and **Registry** to filter by Survey No, Owner, or Hash.
-
-### 5. 🔐 Advanced Authentication & Memory
-- **Dual-Mode Login**: Choose between modern **Google Identity Services (OAuth)** or traditional **Node Password Access**.
-- **Persistent Database**: Integrated with `localStorage` to ensure your transactions and session data survive browser refreshes.
-
-### 6. 🎨 Premium UI Components
-- **Shadcn Integration**: Built with production-grade components like `Button` and `AlertCard` for a professional finish.
+**Geo-Trust** is a high-fidelity, blockchain-inspired simulation platform designed to modernize the global real estate sector. By replacing legacy paper-based systems with an immutable, transparent, and cryptographically secured digital ledger, Geo-Trust provides a production-grade blueprint for secure property lifecycle management.
 
 ---
 
-## 🛠️ Technical Stack
+## ✨ Core Pillars & Features
 
-- **Frontend**: React 19 + Vite
-- **Styling**: Vanilla CSS + Tailwind
-- **Animations**: Framer Motion (for smooth transitions and lifecycle timelines)
-- **Icons**: Lucide React
-- **State Management**: React Context API (Unified Registry & Auth providers)
-- **State Persistence**: LocalStorage for session-wide data consistency
+### 🏛️ 1. Sovereign Property Registry
+*   **Immutable Digital Deeds**: Properties are represented as unique on-chain assets (ERC-721 simulation), ensuring non-fungibility and absolute proof of ownership.
+*   **Dynamic Asset Valuation**: Real-time tracking of market values and ownership status (Verified, Pending, Transferred).
+*   **High-Fidelity Visuals**: Advanced property cards featuring **Glassy Finishes** and context-aware land classification icons.
+
+### 📜 2. Transparent Chain of Custody
+*   **Second-Precision Forensic Explorer**: A compact, real-time Block Explorer that tracks the 6 most recent network updates with pinned status indicators for "Pending" and "Verified" nodes.
+*   **Full Lifecycle Tracking**: Every property maintains a complete, searchable history from original minting through every subsequent transfer.
+*   **Instant Global Search**: Search systemic records via Transaction Hash, Survey Number, or Wallet Address with instant UI feedback.
+
+### 💸 3. Smart Transfer Protocol
+*   **Multi-Stage Minting**: A systematic workflow (Sign → Review → Mint) that simulates zero-knowledge proof verification and smart contract execution.
+*   **Deep Metadata Integration**: Capture rigorous land data including **Classification** (Agricultural/Commercial/Residential), **Land Area**, and **Regional District**.
+*   **Consensus Simulation**: Integrated 8-second "Validator Consensus" loop to provide realistic network latency and block confirmation UX.
+
+### 🔐 4. Enterprise-Grade Authentication
+*   **Native Google OAuth**: Fully integrated with **Google Identity Services (GIS)** for real, browser-native account selection and identity verification.
+*   **Hybrid Access Node**: Optional high-security password fallback for Node Operators and System Administrators.
+*   **Persistent State Synch**: Integrated `localStorage` synchronization ensures that all transactions and registry updates persist across sessions and browser restarts.
 
 ---
 
-## ⚡ Setup & Installation
+## 🎨 Design Philosophy: "Frosted Precision"
+Geo-Trust features a modern **Glassmorphism** aesthetic, designed to convey trust through transparency:
+*   **Animated Orbs**: Background blurs in Teal, Orange, and Navy provide architectural depth.
+*   **Frosted Overlay**: A global `backdrop-blur` system provides a clean, professional "Architectural" feel.
+*   **UI Components**: Powered by **shadcn/ui** patterns and **Framer Motion** for smooth, meaningful transitions.
 
-### Prerequisites
-- Node.js installed on your machine.
-- A Google Client ID (for real Google Login functionality).
+---
 
-### 1. Clone & Install
+## 🛠️ Technology Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | [React 19](https://reactjs.org/) (Strict Mode) |
+| **Build Tool** | [Vite](https://vitejs.dev/) (Ultra-fast HMR) |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) + [Vanilla CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) |
+| **Components** | [shadcn/ui](https://ui.shadcn.com/) (Customized primitive architecture) |
+| **Animations** | [Framer Motion](https://www.framer.com/motion/) |
+| **Data Flow** | [React Context API](https://react.dev/learn/passing-data-deeply-with-context) + LocalStorage Hook |
+| **Identity** | [Google Identity Services](https://developers.google.com/identity/gsi/web) (OAuth 2.0) |
+
+---
+
+## ⚡ Quick Start
+
+### 1. Repository Setup
 ```bash
+# Clone the repository
 git clone <repository-url>
+
+# Navigate to frontend
 cd Blockchain/frontend
+
+# Install dependencies
 npm install
 ```
 
-### 2. Configure Google Authentication
-To enable **real Google account selection**:
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
-2. Create an **OAuth 2.0 Client ID**.
-3. Add `http://localhost:5173` to the **Authorized JavaScript origins**.
-4. Open `src/pages/LoginPage.jsx` and replace the placeholder on **line 13** with your actual Client ID:
+### 2. Configure Authentication
+To enable native Google Account selection:
+1. Obtain an OAuth 2.0 Client ID from the [Google Cloud Console](https://console.cloud.google.com/).
+2. Add `http://localhost:5173` to your **Authorized JavaScript origins**.
+3. Update `src/pages/LoginPage.jsx` with your Client ID:
    ```javascript
    const GOOGLE_CLIENT_ID = "YOUR_ID.apps.googleusercontent.com";
    ```
 
-### 3. Run Locally
+### 3. Launch the Node
 ```bash
 npm run dev
 ```
-Open `http://localhost:5173` to access the portal.
+Access the dashboard at `http://localhost:5173`.
 
 ---
 
-## 📜 Project Structure
-
-- `/src/context`: Global state for the Registry (ledger) and Auth (sessions).
-- `/src/pages`: Interactive modules (Registry, Explorer, Transfer, Verify).
-- `/src/components`: UI components (Navbar, Footer, Toast containers).
+## 📁 System Architecture
+*   `src/context/RegistryContext.jsx`: The core ledger logic, persistence, and property state machine.
+*   `src/components/ui/`: Reusable, atomic UI components (AlertCard, Button, etc.).
+*   `src/pages/`: Modular page logic (Explorer, Registry, Transfer, Analytics).
+*   `src/lib/utils.js`: Core style merging utilities.
 
 ---
 
 ## 🛡️ License
-Built for educational and demonstration purposes. Designed for High-Performance Blockchain Simulators.
+Distributed under the **MIT License**. Build for educational excellence and high-performance blockchain simulations.
+
+**Geo-Trust** — *Securing the world's most valuable assets, one block at a time.*

@@ -1,18 +1,18 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
 
+import { useRegistry } from '../context/RegistryContext';
+
 const ReportsPage = () => {
-  const timeData = [
-    { name: 'Jan', registrations: 1200 },
-    { name: 'Feb', registrations: 1900 },
-    { name: 'Mar', registrations: 2400 },
-    { name: 'Apr', registrations: 2100 },
-    { name: 'May', registrations: 2800 },
-    { name: 'Jun', registrations: 3400 },
+  const { properties, transactions } = useRegistry();
+  
+  // Dynamic calculation for "Oct" or the latest month
+  const activeCount = transactions.length * 120; // Simulated scaling
+  const recentTrend = [
     { name: 'Jul', registrations: 4100 },
     { name: 'Aug', registrations: 3900 },
     { name: 'Sep', registrations: 4600 },
-    { name: 'Oct', registrations: 5200 },
+    { name: 'Oct', registrations: 5200 + transactions.length }, // Dynamic
   ];
 
   const districtData = [
@@ -51,7 +51,7 @@ const ReportsPage = () => {
             <h3 className="font-serif font-bold text-xl text-primary-main mb-6">Total Registrations Over Time</h3>
             <div className="h-80 w-full text-sm">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={timeData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <AreaChart data={recentTrend} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6B7280'}} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{fill: '#6B7280'}} />

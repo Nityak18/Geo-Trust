@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { motion } from 'framer-motion';
-import { AlertCircle, ArrowRight, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertCircle, ArrowRight, CheckCircle, Bell } from 'lucide-react';
 import { useRegistry } from '../context/RegistryContext';
+import { AlertCard } from '../components/ui/card-8';
 
 const TransferPage = () => {
   const { register, handleSubmit } = useForm();
@@ -10,6 +11,7 @@ const TransferPage = () => {
   const [txData, setTxData] = useState(null);
   
   const [step, setStep] = useState(2); 
+  const [isSuccessVisible, setIsSuccessVisible] = useState(false);
 
   const onSubmit = (data) => {
     setTxData(data);
@@ -19,9 +21,18 @@ const TransferPage = () => {
   const onApprove = () => {
     setStep(4); // Moving to Mint
     setTimeout(() => {
-      // Pass the name as the primary owner identifier, and let the backend/context map it
-      executeTransfer(txData.tokenId, txData.buyerName || txData.newWallet, txData.value);
-      alert("🎉 SUCCESS! The transaction was sent to validators. Check the Explorer or Registry!");
+      // Pass all metadata to the executeTransfer function
+      executeTransfer(
+        txData.tokenId, 
+        txData.buyerName || txData.newWallet, 
+        txData.value,
+        {
+          landType: txData.landType,
+          area: txData.area,
+          location: txData.location
+        }
+      );
+      setIsSuccessVisible(true);
       setStep(2);
     }, 1500);
   };
@@ -146,8 +157,46 @@ const TransferPage = () => {
                   />
                 </div>
 
-                {/* Stamp Duty %} */}
+                {/* Land Type */}
                 <div>
+                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">Land Classification</label>
+                  <select 
+                    {...register("landType")}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
+                  >
+                    <option value="Agricultural">Agricultural Land</option>
+                    <option value="Commercial">Commercial Property</option>
+                    <option value="Residential">Residential Plot</option>
+                    <option value="Industrial">Industrial Zone</option>
+                  </select>
+                </div>
+
+                {/* Land Area */}
+                <div>
+                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">Total Land Area</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 2.4 Acres or 1200 Sq.Ft" 
+                    required
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
+                    {...register("area")}
+                  />
+                </div>
+
+                {/* Location/District */}
+                <div>
+                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">District / Location</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Jaipur, Rajasthan" 
+                    required
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
+                    {...register("location")}
+                  />
+                </div>
+
+                {/* Stamp Duty %} */}
+                <div className="md:col-span-2 lg:col-span-1">
                   <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">Stamp Duty %</label>
                   <input 
                     type="number" 
@@ -192,7 +241,36 @@ const TransferPage = () => {
 
         </div>
       </div>
+    
+    {/* Success Alert Overlay */}
+    <div className={`fixed inset-0 flex items-center justify-center z-[100] ${isSuccessVisible ? 'pointer-events-auto' : 'pointer-events-none'} p-4`}>
+      <AnimatePresence>
+        {isSuccessVisible && (
+          <div className="flex items-center justify-center w-full h-full relative">
+            <AlertCard
+              isVisible={isSuccessVisible}
+              title="Transaction Confirmed"
+              description={`Property Survey No. ${txData?.tokenId} has been successfully minted to the Geo-Trust Ledger. The chain of custody is now updated.`}
+              buttonText="View in Explorer"
+              onButtonClick={() => {
+                setIsSuccessVisible(false);
+                window.location.href = '/explorer';
+              }}
+              onDismiss={() => setIsSuccessVisible(false)}
+              icon={<Bell className="h-6 w-6 text-white" />}
+            />
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm -z-10"
+              onClick={() => setIsSuccessVisible(false)}
+            />
+          </div>
+        )}
+      </AnimatePresence>
     </div>
+  </div>
   );
 };
 

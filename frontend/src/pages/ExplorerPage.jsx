@@ -1,23 +1,84 @@
 import React, { useState } from 'react';
-import { Filter, Download } from 'lucide-react';
+import { Filter, Download, Search } from 'lucide-react';
 import { useRegistry } from '../context/RegistryContext';
 
 const ExplorerPage = () => {
   const { transactions } = useRegistry();
   
   const [activeTab, setActiveTab] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredTransactions = transactions.filter(tx => {
-    if (activeTab === 'All') return true;
-    if (activeTab === 'Minted') return tx.status === 'VERIFIED';
-    if (activeTab === 'Transferred') return tx.status === 'TRANSFERRED';
-    if (activeTab === 'Pending') return tx.status === 'PENDING';
-    return true;
-  });
+  // Smart Filter + Limit to 6 + Pin Statuses
+  const getDisplayTransactions = () => {
+    // 1. Initial filter based on search and tabs
+    let base = transactions.filter(tx => {
+      const searchVal = searchQuery.toLowerCase();
+      const matchesSearch = 
+        tx.hash.toLowerCase().includes(searchVal) || 
+        tx.surveyNo.toLowerCase().includes(searchVal) || 
+        tx.owner.toLowerCase().includes(searchVal);
+
+      if (!matchesSearch) return false;
+      if (activeTab === 'All') return true;
+      if (activeTab === 'Minted') return tx.status === 'VERIFIED';
+      if (activeTab === 'Transferred') return tx.status === 'TRANSFERRED';
+      if (activeTab === 'Pending') return tx.status === 'PENDING';
+      return true;
+    });
+
+    // 2. Ensure fixed samples (1 Pending, 1 Verified) are always in the top 6 if they exist
+    const pinnedPending = transactions.find(t => t.status === 'PENDING');
+    const pinnedVerified = transactions.find(t => t.status === 'VERIFIED');
+    
+    let result = [...base];
+    
+    // Insert pins at the start if not already there
+    if (pinnedVerified && !result.find(r => r.hash === pinnedVerified.hash)) result.unshift(pinnedVerified);
+    if (pinnedPending && !result.find(r => r.hash === pinnedPending.hash)) result.unshift(pinnedPending);
+
+    // 3. Absolute limit of 6 recently updated
+    return result.slice(0, 6);
+  };
+
+  const filteredTransactions = getDisplayTransactions();
+
+  const handleExportCSV = () => {
+    if (filteredTransactions.length === 0) return;
+    
+    // Define headers
+    const headers = ["TX Hash", "Block", "Survey No", "Owner", "Value", "Timestamp", "Status"];
+    
+    // Map data to rows
+    const rows = filteredTransactions.map(tx => [
+      tx.hash,
+      tx.block,
+      tx.surveyNo,
+      tx.owner,
+      tx.value,
+      tx.time,
+      tx.status
+    ]);
+    
+    // Combine into CSV string
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(r => r.join(","))
+    ].join("\n");
+    
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `geotrust_ledger_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
-    <div className="min-h-screen bg-background py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background py-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
@@ -29,30 +90,52 @@ const ExplorerPage = () => {
           </div>
 
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
-              <Filter className="w-4 h-4" /> Filter
+            <button 
+              onClick={() => document.getElementById('explorerSearch')?.focus()}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all shadow-sm active:scale-95"
+            >
+              <Filter className="w-4 h-4 text-accent-teal" /> Filter Records
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
+            <button 
+              onClick={handleExportCSV}
+              className="flex items-center gap-2 px-4 py-2 bg-primary-main text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-all shadow-md active:scale-95"
+            >
               <Download className="w-4 h-4" /> Export CSV
             </button>
           </div>
         </div>
 
-        {/* Filters/Tabs */}
-        <div className="flex space-x-1 bg-white p-1 rounded-xl shadow-sm border border-black/5 mb-6 max-w-fit">
-          {['All', 'Minted', 'Transferred', 'Pending'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === tab 
-                ? 'bg-primary-main text-white shadow' 
-                : 'text-gray-500 hover:text-primary-main hover:bg-gray-100'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        {/* Compact Filter Toolbar */}
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 mb-6 bg-white/60 backdrop-blur-md p-3 rounded-xl border border-white/40 shadow-sm">
+          {/* Tabs */}
+          <div className="flex space-x-1 bg-background p-1 rounded-lg border border-black/5 w-full lg:w-auto">
+            {['All', 'Minted', 'Transferred', 'Pending'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 lg:flex-none px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
+                  activeTab === tab 
+                  ? 'bg-primary-main text-white shadow-sm' 
+                  : 'text-gray-400 hover:text-primary-main hover:bg-gray-100'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Compact Search Box */}
+          <div className="relative w-full lg:max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+            <input 
+              id="explorerSearch"
+              type="text" 
+              placeholder="Search Hash or Survey..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-background border-none rounded-lg text-xs focus:ring-1 focus:ring-accent-teal/20 outline-none transition-all"
+            />
+          </div>
         </div>
 
         {/* Table */}

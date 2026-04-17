@@ -16,17 +16,20 @@ Geo-Trust is a high-fidelity blockchain-based simulation for modern land registr
 
 ### 3. 💸 Smart Transfer Protocol
 - **Three-Step Minting**: A multi-step stepper (Sign → Review → Mint) that simulates a real blockchain transaction workflow.
-- **Validator Simulation**: Transactions include an 8-second "Validator Consensus" delay, mimicking real-world block confirmation times.
-- **Real-Time Date-Time**: Every transaction generates high-precision Indian Standard Time (IST) timestamps.
+- **Detailed Metadata**: Transfers now capture **Land Classification**, **Area Size**, and **Regional District**.
+- **Validator Simulation**: Transactions include an 8-second "Validator Consensus" delay.
+- **Dynamic Icons**: Property card visuals automatically adjust based on the selected land type.
 
-### 4. 🌐 Block Explorer
+### 4. 🌐 Block Explorer & Search
 - **Live Ledger Feed**: A real-time table showing the latest activities across the entire network.
-- **Search & Filter**: Find transactions by Survey Number, status, or hash.
+- **Instant Global Search**: High-precision search bars in both the **Explorer** and **Registry** to filter by Survey No, Owner, or Hash.
 
-### 5. 🔐 Advanced Authentication Node
+### 5. 🔐 Advanced Authentication & Memory
 - **Dual-Mode Login**: Choose between modern **Google Identity Services (OAuth)** or traditional **Node Password Access**.
-- **Real Google Integration**: Connects to actual Gmail accounts on your device for authentic identity verification.
-- **Identity Links**: User roles and verified email IDs are permanently recorded in the property lifecycle logs.
+- **Persistent Database**: Integrated with `localStorage` to ensure your transactions and session data survive browser refreshes.
+
+### 6. 🎨 Premium UI Components
+- **Shadcn Integration**: Built with production-grade components like `Button` and `AlertCard` for a professional finish.
 
 ---
 

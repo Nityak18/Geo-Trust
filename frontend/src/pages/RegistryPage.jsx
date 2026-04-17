@@ -1,25 +1,46 @@
-import React from 'react';
 import PropertyCard from '../components/PropertyCard';
 import { useRegistry } from '../context/RegistryContext';
+import { Search } from 'lucide-react';
+import { useState } from 'react';
 
 const RegistryPage = () => {
   const { properties, transactions } = useRegistry();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredProperties = properties.filter(p => 
+    p.surveyNo.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    p.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.location.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="mb-10">
-          <div className="flex items-center gap-4 mb-2">
-            <div className="h-0.5 w-8 bg-accent-orange"></div>
-            <span className="text-sm font-bold tracking-[0.2em] text-primary-main uppercase">Registry</span>
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+          <div>
+            <div className="flex items-center gap-4 mb-2">
+              <div className="h-0.5 w-8 bg-accent-orange"></div>
+              <span className="text-sm font-bold tracking-[0.2em] text-primary-main uppercase">Registry</span>
+            </div>
+            <h1 className="text-4xl font-serif font-bold text-primary-main mb-2">Property Records</h1>
+            <p className="text-textPrimary/60 font-medium">Hover across the cards to reveal on-chain verified metadata.</p>
           </div>
-          <h1 className="text-4xl font-serif font-bold text-primary-main mb-2">Property Records</h1>
-          <p className="text-textPrimary/60 font-medium">Hover across the cards to reveal on-chain verified metadata.</p>
+
+          <div className="relative w-full lg:max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Search by Survey No, Owner, or Location..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-white border border-black/5 rounded-xl shadow-sm focus:ring-2 focus:ring-accent-orange/20 outline-none transition-all text-sm"
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {properties.map((prop, idx) => (
+          {filteredProperties.map((prop, idx) => (
              <PropertyCard key={idx} property={prop} />
           ))}
         </div>

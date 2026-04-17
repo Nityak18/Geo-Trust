@@ -69,7 +69,7 @@ export const RegistryProvider = ({ children }) => {
     localStorage.setItem('gt_transactions', JSON.stringify(transactions));
   }, [transactions]);
 
-  const executeTransfer = (tokenId, newOwner, valueIN) => {
+  const executeTransfer = (tokenId, newOwner, valueIN, extraMetadata = {}) => {
     // Generate a simulated transaction hash
     const fakeHash = '0x' + Math.random().toString(16).substring(2, 12) + '...deed';
     
@@ -91,7 +91,9 @@ export const RegistryProvider = ({ children }) => {
       owner: newOwner,
       value: valueIN,
       time: timeString,
-      status: 'PENDING'
+      status: 'PENDING',
+      landType: extraMetadata.landType || 'Unknown',
+      area: extraMetadata.area || 'Unknown'
     };
 
     // Prepend the new pending transaction to Explorer logs instantly
@@ -119,6 +121,9 @@ export const RegistryProvider = ({ children }) => {
               status: 'TRANSFERRED',
               value: valueIN,
               hash: fakeHash,
+              type: extraMetadata.landType || p.type,
+              area: extraMetadata.area || p.area,
+              location: extraMetadata.location || p.location,
               block: (Math.floor(Math.random() * 1000) + 8500).toString()
             };
           }
@@ -129,16 +134,17 @@ export const RegistryProvider = ({ children }) => {
         if (!isExisting) {
           updated.unshift({
             surveyNo: 'Survey No. ' + tokenId,
-            location: 'Newly Migrated Web3 Record',
-            area: 'Unknown Acres',
-            type: 'Agricultural',
+            location: extraMetadata.location || 'Newly Migrated Web3 Record',
+            area: extraMetadata.area || 'Unknown Acres',
+            type: extraMetadata.landType || 'Agricultural',
             status: 'TRANSFERRED',
             value: valueIN,
             id: 'NEW-ID-' + Math.floor(Math.random()*1000),
             owner: newOwner,
             block: (Math.floor(Math.random() * 1000) + 8500).toString(),
             hash: fakeHash,
-            svgType: 'green_polygon'
+            svgType: extraMetadata.landType === 'Residential' ? 'orange_floorplan' : 
+                     extraMetadata.landType === 'Commercial' ? 'purple_polygon' : 'green_polygon'
           });
         }
         return updated;

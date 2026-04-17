@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Shield, Lock, ArrowRight } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'
+import { Eye, EyeOff, ArrowLeft, ShieldCheck } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
-const LoginPage = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const [password, setPassword] = useState('');
+export default function LoginPage() {
+  const navigate = useNavigate()
+  const { login } = useAuth()
+  const [showPassword, setShowPassword] = useState(false)
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    rememberMe: false
+  })
 
-  // IMPORTANT: You need to replace this with your real Client ID from Google Cloud Console
-  const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com";
+  const GOOGLE_CLIENT_ID = "898787770826-9rk04tv1apqcffcj7bns486a6cu6qsug.apps.googleusercontent.com"
 
   useEffect(() => {
     /* global google */
@@ -18,111 +21,186 @@ const LoginPage = () => {
       google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleGoogleResponse
-      });
+      })
 
       google.accounts.id.renderButton(
         document.getElementById("googleSignInBtn"),
         { 
-            theme: "filled_blue", 
+            theme: "outline", 
             size: "large", 
             shape: "pill",
-            width: 360,
-            logo_alignment: "left"
+            width: 400,
+            text: "continue_with"
         }
-      );
+      )
     }
-  }, []);
+  }, [])
 
   const handleGoogleResponse = (response) => {
-    // In a real app, you'd send 'response.credential' (JWT) to your backend
-    // For this demo, we'll decode the JWT or just simulate the successful login
-    console.log("Encoded JWT ID token: " + response.credential);
-    
-    // Simulate decoding the user info from the real Google JWT
+    console.log("Encoded JWT ID token: " + response.credential)
     login('google', { 
         name: 'Google User', 
         email: 'authenticated@gmail.com' 
-    });
-    navigate('/');
-  };
+    })
+    navigate('/')
+  }
 
-  const handlePasswordLogin = (e) => {
-    e.preventDefault();
-    if (password) {
-      login('password', { name: 'Node Operator', email: 'admin@registry.gov' });
-      navigate('/');
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    // Simulated Password Login using the same logic as before
+    if (formData.password) {
+        login('password', { name: 'Node Operator', email: formData.email || 'admin@registry.gov' })
+        navigate('/')
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute top-0 right-0 -mr-32 -mt-32 w-96 h-96 bg-accent-orange/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 -ml-32 -mb-32 w-96 h-96 bg-accent-teal/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div className="max-w-md w-full space-y-8 relative">
-        <div className="text-center">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex justify-center mb-6"
+    <div className="h-screen w-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex overflow-hidden">
+      {/* Left Panel - Image Section */}
+      <div className="hidden lg:flex flex-1 relative overflow-hidden">
+        {/* Back Button */}
+        <div className="absolute top-6 left-6 z-10">
+          <button
+            onClick={() => navigate('/')}
+            className="w-10 h-10 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/30 transition-all"
           >
-            <div className="w-16 h-16 bg-primary-main rounded-2xl flex items-center justify-center shadow-xl">
-              <Shield className="w-8 h-8 text-white" />
-            </div>
-          </motion.div>
-          <h2 className="text-3xl font-serif font-bold text-primary-main tracking-tight">Access Protocol</h2>
-          <p className="mt-2 text-textPrimary/60 text-sm">Sign in to the global ledger node.</p>
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </button>
         </div>
 
-        <div className="bg-white p-10 rounded-[2rem] shadow-2xl border border-black/5 space-y-8">
-          
-          {/* REAL Google Sign In Button */}
-          <div className="flex flex-col items-center space-y-4">
-              <div id="googleSignInBtn" className="w-full flex justify-center scale-110"></div>
-              {GOOGLE_CLIENT_ID.includes("YOUR_GOOGLE") && (
-                <div className="p-3 bg-accent-orange/10 border border-accent-orange/20 rounded-lg">
-                   <p className="text-[10px] text-accent-orange font-bold text-center leading-tight">
-                    ACTION REQUIRED: Paste your "Google Client ID" in src/pages/LoginPage.jsx to enable real account selection.
-                   </p>
-                </div>
-              )}
+        <div className="absolute inset-0">
+          <img
+            src="https://i.ibb.co/dJxBbFks/brandasset.png"
+            alt="Geo-Trust Brand Asset"
+            className="w-full h-full object-cover"
+          />
+          {/* Overlay text for brand feel */}
+          <div className="absolute inset-0 bg-black/30 flex flex-col justify-end p-12">
+             <div className="flex items-center gap-3 mb-4">
+                <ShieldCheck className="w-10 h-10 text-white" />
+                <h2 className="text-4xl font-serif font-bold text-white tracking-tight">Geo-Trust</h2>
+             </div>
+             <p className="text-white/80 text-lg max-w-md font-medium">Securing the world's land records on an immutable, decentralized ledger. Welcome to the future of property trust.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Form Section */}
+      <div className="flex-1 flex items-center justify-center bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] z-10">
+        <div className="w-full max-w-md p-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 font-serif">
+              Node Access
+            </h1>
+            <p className="text-gray-600">
+              Welcome to the Secure Terminal. Access the global registry.
+            </p>
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-100"></span></div>
-            <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest text-gray-300"><span className="bg-white px-4">OR USE NODE SECURITY</span></div>
-          </div>
-
-          <form onSubmit={handlePasswordLogin} className="space-y-5">
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input 
-                type="password"
-                placeholder="Access Password"
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 uppercase tracking-wide">
+                Terminal Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="admin@geo-trust.gov.in"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-gray-50/50"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-primary-main outline-none transition-all text-sm font-medium"
               />
             </div>
-            
-            <button 
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 uppercase tracking-wide">
+                Node Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="********"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-gray-50/50"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5 text-gray-500" />
+                  ) : (
+                    <Eye className="w-5 h-5 text-gray-500" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Remember Me + Forgot Password */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center space-x-2 text-sm text-gray-600">
+                <input
+                  type="checkbox"
+                  name="rememberMe"
+                  checked={formData.rememberMe}
+                  onChange={handleInputChange}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                />
+                <span>Remember me</span>
+              </label>
+              <button
+                type="button"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Forgot credentials?
+              </button>
+            </div>
+
+            {/* Submit */}
+            <button
               type="submit"
-              className="w-full btn-primary py-4 text-sm font-bold tracking-widest uppercase flex items-center justify-center gap-2"
+              className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95"
             >
-              Unlock Terminal
-              <ArrowRight className="w-4 h-4" />
+              Unlock Registry
             </button>
+
+            {/* Divider */}
+            <div className="relative my-8">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-100"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-400 font-bold uppercase tracking-tight">Secure OAuth</span>
+              </div>
+            </div>
+
+            {/* Social Buttons - Now includes the REAL Google Auth Button */}
+            <div className="flex flex-col gap-4 items-center">
+                <div id="googleSignInBtn" className="w-full flex justify-center scale-105 overflow-hidden rounded-xl"></div>
+                
+                <p className="text-[10px] text-gray-400 text-center px-4">
+                    Your identity is verified against the global decentralized authority. OAuth sessions are cryptographically bound to the node instance.
+                </p>
+            </div>
           </form>
         </div>
-
-        <p className="text-center text-xs text-gray-500">
-          Encryption Level: AES-256 On-Chain Validation Active
-        </p>
       </div>
     </div>
-  );
-};
-
-export default LoginPage;
+  )
+}

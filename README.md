@@ -2,42 +2,42 @@
 
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind--CSS-3.4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Leaflet](https://img.shields.io/badge/Leaflet-1.9-199900?logo=leaflet&logoColor=white)](https://leafletjs.com/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Geo-Trust** is a high-fidelity, blockchain-inspired simulation platform designed to modernize the global real estate sector. By replacing legacy paper-based systems with an immutable, transparent, and cryptographically secured digital ledger, Geo-Trust provides a production-grade blueprint for secure property lifecycle management.
-
----
-
-## ✨ Core Pillars & Features
-
-### 🏛️ 1. Sovereign Property Registry
-*   **Immutable Digital Deeds**: Properties are represented as unique on-chain assets (ERC-721 simulation), ensuring non-fungibility and absolute proof of ownership.
-*   **Dynamic Asset Valuation**: Real-time tracking of market values and ownership status (Verified, Pending, Transferred).
-*   **High-Fidelity Visuals**: Advanced property cards featuring **Glassy Finishes** and context-aware land classification icons.
-
-### 📜 2. Transparent Chain of Custody
-*   **Second-Precision Forensic Explorer**: A compact, real-time Block Explorer that tracks the 6 most recent network updates with pinned status indicators for "Pending" and "Verified" nodes.
-*   **Full Lifecycle Tracking**: Every property maintains a complete, searchable history from original minting through every subsequent transfer.
-*   **Instant Global Search**: Search systemic records via Transaction Hash, Survey Number, or Wallet Address with instant UI feedback.
-
-### 💸 3. Smart Transfer Protocol
-*   **Multi-Stage Minting**: A systematic workflow (Sign → Review → Mint) that simulates zero-knowledge proof verification and smart contract execution.
-*   **Deep Metadata Integration**: Capture rigorous land data including **Classification** (Agricultural/Commercial/Residential), **Land Area**, and **Regional District**.
-*   **Consensus Simulation**: Integrated 8-second "Validator Consensus" loop to provide realistic network latency and block confirmation UX.
-
-### 🔐 4. Enterprise-Grade Authentication
-*   **Native Google OAuth**: Fully integrated with **Google Identity Services (GIS)** for real, browser-native account selection and identity verification.
-*   **Hybrid Access Node**: Optional high-security password fallback for Node Operators and System Administrators.
-*   **Persistent State Synch**: Integrated `localStorage` synchronization ensures that all transactions and registry updates persist across sessions and browser restarts.
+**Geo-Trust** is a premier, blockchain-powered geospatial simulation platform designed to modernize the global real estate sector. By merging high-precision GIS mapping with an immutable digital ledger, Geo-Trust provides a production-grade blueprint for secure property lifecycle management with unmatched visual fidelity.
 
 ---
 
-## 🎨 Design Philosophy: "Frosted Precision"
-Geo-Trust features a modern **Glassmorphism** aesthetic, designed to convey trust through transparency:
-*   **Animated Orbs**: Background blurs in Teal, Orange, and Navy provide architectural depth.
-*   **Frosted Overlay**: A global `backdrop-blur` system provides a clean, professional "Architectural" feel.
-*   **UI Components**: Powered by **shadcn/ui** patterns and **Framer Motion** for smooth, meaningful transitions.
+## ✨ Core Pillars & New Features
+
+### 📍 1. Exact Plot-Level Geospatial Identity
+*   **Precision Pin-Dropping**: Integrated **Leaflet** & **OpenStreetMap** (OSM) for exact GPS coordinate capture during registration.
+*   **Mobile Deep-Linking**: One-click navigation to exact property boundaries via **Google Maps** native app integration using `geo:` URI schemes.
+*   **Property MiniMaps**: Every registry record now includes a live, interactive map preview of the exact land plot.
+
+### 🏛️ 2. Sovereign Property Registry
+*   **Immutable Digital Deeds**: Properties are cryptographically secured assets (Simulated ERC-721), ensuring absolute proof of ownership.
+*   **High-Fidelity Visuals**: Advanced property cards featuring **Architectural Glass** finishes and dynamic land classification states.
+*   **Real-time Ledger Sync**: Persistence layer powered by `localStorage` with block-level integrity checks.
+
+### 📜 3. Advanced Multi-Step Onboarding
+*   **Onboarding Flow**: A refined, 5-stage Transfer workflow (Deed → Parties → Location → Financials → Mint) powered by specialized **shadcn** logic.
+*   **Live Validation**: Context-aware input validation ensures rigorous data capture (Buyer ID Hashes, Wallet Addresses, Stamp Duty percentages).
+*   **Cinematic transitions**: Seamless interactions between form steps using **Framer Motion** for a premium enterprise feel.
+
+### 📊 4. Live Registry Intelligence
+*   **Interactive Analytics**: upgraded Reports page with glassmorphism dashboards, showing "Total Value on Chain" and "Plot Distribution" via **Recharts**.
+*   **Forensic Explorer**: A real-time block explorer tracking the most recent network updates with precision status indicators.
+*   **Identity Verification**: Integrated metrics for verified Identities and Network Consensus nodes.
+
+---
+
+## 🎨 Design Philosophy: "Architectural Clarity"
+Geo-Trust features a modern **Glassmorphism** aesthetic, conveying trust through visual transparency:
+*   **Dynamic Backgrounds**: Floating background ornaments in Teal and Orange provide depth and motion.
+*   **Premium Typography**: Leveraging **Playfair Display** (Serif) for authority and **DM Sans** for readability.
+*   **Modern Auth Experience**: An animated, high-fidelity carousels on the Login page with auto-advancing slides and Google OAuth integration.
 
 ---
 
@@ -46,12 +46,13 @@ Geo-Trust features a modern **Glassmorphism** aesthetic, designed to convey trus
 | Layer | Technology |
 | :--- | :--- |
 | **Framework** | [React 19](https://reactjs.org/) (Strict Mode) |
+| **GIS / Mapping** | [Leaflet](https://leafletjs.com/) + [OpenStreetMap](https://www.openstreetmap.org/) |
 | **Build Tool** | [Vite](https://vitejs.dev/) (Ultra-fast HMR) |
 | **Styling** | [Tailwind CSS](https://tailwindcss.com/) + [Vanilla CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) |
-| **Components** | [shadcn/ui](https://ui.shadcn.com/) (Customized primitive architecture) |
+| **Components** | [shadcn/ui](https://ui.shadcn.com/) (Primitive-based architecture) |
 | **Animations** | [Framer Motion](https://www.framer.com/motion/) |
-| **Data Flow** | [React Context API](https://react.dev/learn/passing-data-deeply-with-context) + LocalStorage Hook |
-| **Identity** | [Google Identity Services](https://developers.google.com/identity/gsi/web) (OAuth 2.0) |
+| **Notifications**| [Sonner](https://sonner.steventey.com/) (Cinematic Toast System) |
+| **Data Flow** | [React Context API](https://react.dev/learn/passing-data-deeply-with-context) |
 
 ---
 
@@ -73,10 +74,7 @@ npm install
 To enable native Google Account selection:
 1. Obtain an OAuth 2.0 Client ID from the [Google Cloud Console](https://console.cloud.google.com/).
 2. Add `http://localhost:5173` to your **Authorized JavaScript origins**.
-3. Update `src/pages/LoginPage.jsx` with your Client ID:
-   ```javascript
-   const GOOGLE_CLIENT_ID = "YOUR_ID.apps.googleusercontent.com";
-   ```
+3. Update `src/pages/LoginPage.jsx` with your Client ID.
 
 ### 3. Launch the Node
 ```bash
@@ -87,10 +85,10 @@ Access the dashboard at `http://localhost:5173`.
 ---
 
 ## 📁 System Architecture
-*   `src/context/RegistryContext.jsx`: The core ledger logic, persistence, and property state machine.
-*   `src/components/ui/`: Reusable, atomic UI components (AlertCard, Button, etc.).
-*   `src/pages/`: Modular page logic (Explorer, Registry, Transfer, Analytics).
-*   `src/lib/utils.js`: Core style merging utilities.
+*   `src/lib/geoUtils.js`: Centralized logic for coordinate formatting and deep-link generation.
+*   `src/components/ui/LocationPicker.jsx`: Interactive map component for precise plot selection.
+*   `src/pages/TransferPage.jsx`: The new multi-step ownership migration interface.
+*   `src/context/RegistryContext.jsx`: The core ledger logic and state machine.
 
 ---
 

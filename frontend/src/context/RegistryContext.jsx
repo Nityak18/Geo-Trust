@@ -19,7 +19,8 @@ export const RegistryProvider = ({ children }) => {
         owner: '0x3a4...9f1b',
         block: '8,412',
         hash: '0xb412...88df',
-        svgType: 'green_polygon'
+        svgType: 'green_polygon',
+        coords: [15.8497, 74.4977]   // exact Belagavi coords
       },
       {
         surveyNo: 'Plot 77B',
@@ -32,7 +33,8 @@ export const RegistryProvider = ({ children }) => {
         owner: '0x1c9...2a34',
         block: 'Pending',
         hash: '0x... (mempool)',
-        svgType: 'orange_floorplan'
+        svgType: 'orange_floorplan',
+        coords: [18.5204, 73.8567]   // exact Pune coords
       },
       {
         surveyNo: 'Khasra 481',
@@ -45,7 +47,8 @@ export const RegistryProvider = ({ children }) => {
         owner: '0x8f2...7c6d',
         block: '8,104',
         hash: '0x7e81...22b1',
-        svgType: 'purple_polygon'
+        svgType: 'purple_polygon',
+        coords: [26.9124, 75.7873]   // exact Jaipur coords
       }
     ];
   });
@@ -124,6 +127,7 @@ export const RegistryProvider = ({ children }) => {
               type: extraMetadata.landType || p.type,
               area: extraMetadata.area || p.area,
               location: extraMetadata.location || p.location,
+              coords: extraMetadata.coords || p.coords || null,  // preserve exact coords
               block: (Math.floor(Math.random() * 1000) + 8500).toString()
             };
           }
@@ -143,6 +147,7 @@ export const RegistryProvider = ({ children }) => {
             owner: newOwner,
             block: (Math.floor(Math.random() * 1000) + 8500).toString(),
             hash: fakeHash,
+            coords: extraMetadata.coords || null,   // store exact GPS if provided
             svgType: extraMetadata.landType === 'Residential' ? 'orange_floorplan' : 
                      extraMetadata.landType === 'Commercial' ? 'purple_polygon' : 'green_polygon'
           });

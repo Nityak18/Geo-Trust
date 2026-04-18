@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import { motion } from 'framer-motion';
+import { MapPin, Navigation } from 'lucide-react';
+import { getCoordinates, getGoogleMapsUrl, formatCoords } from '../lib/geoUtils';
+
+const PropertyMiniMap = lazy(() => import('./ui/PropertyMiniMap'));
 
 const PropertyCard = ({ property }) => {
-  const { 
-    surveyNo, location, area, type, status, value, id, owner, block, hash, svgType 
-  } = property;
+  const { surveyNo, location, area, type, status, value, id, owner, block, hash, coords } = property;
+  const [resolvedCoords, setResolvedCoords] = useState(coords || null); // prefer stored exact coords
+
+  // Use exact stored coords if available; only use geoUtils fallback if not
+  const effectiveCoords = coords || resolvedCoords;
 
   const statusColors = {
     VERIFIED: 'text-status-verified bg-status-verified/10',
@@ -12,29 +18,11 @@ const PropertyCard = ({ property }) => {
     TRANSFERRED: 'text-status-transferred bg-status-transferred/10',
   };
 
-  const getSvg = () => {
-    if (svgType === 'green_polygon') return (
-      <svg viewBox="0 0 100 100" className="w-full h-32 drop-shadow-sm">
-        <path d="M10 80 L20 20 L70 10 L85 45 L90 85 Z" fill="#3DAA5C" fillOpacity="0.2" stroke="#3DAA5C" strokeWidth="2" />
-        <circle cx="10" cy="80" r="2" fill="#E8900A" />
-        <circle cx="20" cy="20" r="2" fill="#E8900A" />
-        <circle cx="70" cy="10" r="2" fill="#E8900A" />
-        <circle cx="85" cy="45" r="2" fill="#E8900A" />
-        <circle cx="90" cy="85" r="2" fill="#E8900A" />
-      </svg>
-    );
-    if (svgType === 'orange_floorplan') return (
-      <svg viewBox="0 0 100 100" className="w-full h-32 drop-shadow-sm">
-        <rect x="20" y="20" width="60" height="60" fill="none" stroke="#E8900A" strokeWidth="2" />
-        <line x1="50" y1="20" x2="50" y2="80" stroke="#E8900A" strokeWidth="2" />
-        <line x1="20" y1="50" x2="80" y2="50" stroke="#E8900A" strokeWidth="2" />
-      </svg>
-    );
-    return (
-      <svg viewBox="0 0 100 100" className="w-full h-32 drop-shadow-sm">
-        <path d="M30 90 L10 40 L50 10 L90 40 L70 90 Z" fill="#7B5EA7" fillOpacity="0.2" stroke="#7B5EA7" strokeWidth="2" />
-      </svg>
-    );
+  const handleNavigate = (e) => {
+    e.stopPropagation();
+    const c = effectiveCoords || getCoordinates(location);
+    const url = getGoogleMapsUrl(c[0], c[1], `${surveyNo} - ${location}`);
+    window.open(url, '_blank');
   };
 
   return (
@@ -43,18 +31,42 @@ const PropertyCard = ({ property }) => {
       className="glass-card relative overflow-hidden group cursor-pointer border border-black/5 bg-white shadow-sm"
     >
       <div className="p-5">
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between items-start mb-3">
           <div>
             <h3 className="font-serif font-bold text-lg text-primary-main">{surveyNo}</h3>
-            <p className="text-xs text-gray-500 font-medium">{location}</p>
+            <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
+              <MapPin className="w-3 h-3 text-accent-teal shrink-0" />{location}
+            </p>
           </div>
           <div className={`badge ${statusColors[status]}`}>
             ● {status}
           </div>
         </div>
         
-        <div className="bg-background rounded-xl p-3 mb-4 flex justify-center items-center">
-          {getSvg()}
+        {/* Mini Map */}
+        <div className="rounded-xl overflow-hidden mb-3 border border-black/5 relative z-0">
+          <Suspense fallback={
+            <div className="h-32 bg-gray-100 animate-pulse rounded-xl flex items-center justify-center">
+              <MapPin className="w-5 h-5 text-gray-300" />
+            </div>
+          }>
+          <PropertyMiniMap 
+              location={location} 
+              zoom={coords ? 15 : 11}  // zoom in tighter when we have exact coords
+              height="h-32" 
+              interactive={false}
+              onCoordsResolved={(c) => { if (!coords) setResolvedCoords(c); }}
+            />
+          </Suspense>
+
+          {/* Navigate button overlaid on the map */}
+          <button
+            onClick={handleNavigate}
+            className="absolute bottom-2 right-2 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full text-xs font-bold text-primary-main shadow-md hover:bg-accent-teal hover:text-white transition-all border border-white/60"
+          >
+            <Navigation className="w-3 h-3" />
+            Navigate
+          </button>
         </div>
         
         <div className="flex justify-between items-center text-sm mb-2">
@@ -65,6 +77,13 @@ const PropertyCard = ({ property }) => {
           <span className="text-gray-500 text-xs font-mono">{id}</span>
           <span className="font-bold text-lg text-primary-main">{value}</span>
         </div>
+
+        {/* Subtle coords display */}
+        {effectiveCoords && (
+          <p className="text-[10px] text-gray-400 font-mono mt-1.5 text-center">
+            {formatCoords(effectiveCoords[0], effectiveCoords[1])}
+          </p>
+        )}
       </div>
 
       {/* On-Chain Metadata Overlay on Hover */}
@@ -84,13 +103,30 @@ const PropertyCard = ({ property }) => {
           <span className="font-mono text-accent-teal truncate max-w-[120px]">{hash}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-white/60">Timestamp</span>
-          <span className="font-mono">14 Oct 2026</span>
+          <span className="text-white/60">Location</span>
+          <span className="font-mono text-white/80 truncate max-w-[140px]">{location}</span>
         </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-white/60">IPFS CID</span>
-          <span className="font-mono truncate max-w-[120px]">QmYwAPJzv5...</span>
-        </div>
+        {effectiveCoords && (
+          <div className="flex justify-between text-xs">
+            <span className="text-white/60">Coordinates</span>
+            <span className="font-mono text-white/80">{formatCoords(effectiveCoords[0], effectiveCoords[1])}</span>
+          </div>
+        )}
+        {coords && (
+          <div className="flex justify-between text-xs">
+            <span className="text-white/60">Precision</span>
+            <span className="text-status-verified font-bold text-[10px]">EXACT GPS ✓</span>
+          </div>
+        )}
+
+        {/* Navigate CTA inside hover overlay */}
+        <button
+          onClick={handleNavigate}
+          className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-accent-teal text-white rounded-xl font-bold text-xs tracking-wider hover:bg-accent-teal/80 transition-all active:scale-95"
+        >
+          <Navigation className="w-4 h-4" />
+          Open in Google Maps
+        </button>
       </div>
     </motion.div>
   );

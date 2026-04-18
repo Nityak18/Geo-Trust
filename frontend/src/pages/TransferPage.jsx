@@ -1,276 +1,382 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, ArrowRight, CheckCircle, Bell } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Check, 
+  Loader2, 
+  MapPin, 
+  ShieldCheck, 
+  FileText, 
+  Users, 
+  DollarSign, 
+  Gavel,
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react';
 import { useRegistry } from '../context/RegistryContext';
+import { Button } from '../components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
+import { Textarea } from '../components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
+import { Toaster, toast } from 'sonner';
+import { cn } from '../lib/utils';
 import { AlertCard } from '../components/ui/card-8';
 
-const TransferPage = () => {
-  const { register, handleSubmit } = useForm();
-  const { executeTransfer } = useRegistry();
-  const [txData, setTxData] = useState(null);
-  
-  const [step, setStep] = useState(2); 
-  const [isSuccessVisible, setIsSuccessVisible] = useState(false);
+const LocationPicker = lazy(() => import('../components/ui/LocationPicker'));
 
-  const onSubmit = (data) => {
-    setTxData(data);
-    setStep(3); // Moving to review
+const steps = [
+  { id: "deed", title: "Deed Details", icon: <FileText className="w-4 h-4" /> },
+  { id: "parties", title: "Parties", icon: <Users className="w-4 h-4" /> },
+  { id: "location", title: "Location", icon: <MapPin className="w-4 h-4" /> },
+  { id: "financials", title: "Financials", icon: <DollarSign className="w-4 h-4" /> },
+  { id: "review", title: "Mint", icon: <Gavel className="w-4 h-4" /> },
+];
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+};
+
+const contentVariants = {
+  hidden: { opacity: 0, x: 20 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
+  exit: { opacity: 0, x: -20, transition: { duration: 0.2 } },
+};
+
+const TransferPage = () => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccessVisible, setIsSuccessVisible] = useState(false);
+  const { executeTransfer } = useRegistry();
+  const [confirmedLocation, setConfirmedLocation] = useState(null);
+
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+    defaultValues: {
+      tokenId: "",
+      currentOwner: "",
+      landType: "Residential",
+      area: "",
+      buyerId: "",
+      buyerName: "",
+      newWallet: "",
+      value: "",
+      stampDuty: "5.0",
+      additionalNotes: ""
+    }
+  });
+
+  const formData = watch();
+
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(prev => prev + 1);
+    }
   };
 
-  const onApprove = () => {
-    setStep(4); // Moving to Mint
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const onSubmit = (data) => {
+    setIsSubmitting(true);
+    
     setTimeout(() => {
-      // Pass all metadata to the executeTransfer function
       executeTransfer(
-        txData.tokenId, 
-        txData.buyerName || txData.newWallet, 
-        txData.value,
+        data.tokenId, 
+        data.buyerName || data.newWallet, 
+        data.value,
         {
-          landType: txData.landType,
-          area: txData.area,
-          location: txData.location
+          landType: data.landType,
+          area: data.area,
+          location: confirmedLocation?.address || 'Unknown',
+          coords: confirmedLocation?.coords || null,
         }
       );
+      toast.success("Transaction submitted to blockchain!");
+      setIsSubmitting(false);
       setIsSuccessVisible(true);
-      setStep(2);
-    }, 1500);
+    }, 2000);
+  };
+
+  const isStepValid = () => {
+    switch (currentStep) {
+      case 0:
+        return formData.tokenId && formData.currentOwner && formData.area;
+      case 1:
+        return formData.buyerId && formData.buyerName && formData.newWallet;
+      case 2:
+        return confirmedLocation !== null;
+      case 3:
+        return formData.value && formData.stampDuty;
+      default:
+        return true;
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-2">
-            <div className="h-0.5 w-8 bg-accent-orange"></div>
-            <span className="text-sm font-bold tracking-[0.2em] text-primary-main uppercase">Transaction</span>
-          </div>
-          <h1 className="text-4xl font-serif font-bold text-primary-main mb-6">Transfer Ownership</h1>
+    <div className="min-h-screen bg-gray-50/50 py-12 px-4 relative overflow-hidden">
+      <Toaster position="top-right" richColors />
+      
+      {/* Background Ornaments */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-accent-teal/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent-orange/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
+      <div className="max-w-2xl mx-auto relative">
+        {/* Header */}
+        <div className="mb-10 text-center">
+          <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">Property Transfer Portal</h1>
+          <p className="text-gray-500">Cryptographically secure ownership migration</p>
         </div>
 
-        {/* Dynamic Card Header */}
-        <div className="bg-accent-orange text-white rounded-t-2xl p-6 shadow-lg relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/4 translate-x-1/4"></div>
-          <p className="text-xs font-bold tracking-widest uppercase mb-2 opacity-80">Step {step} of 4 &mdash; {step === 2 ? 'Sign Transaction' : 'Review & Mint'}</p>
-          <h2 className="text-3xl font-serif font-semibold relative z-10">Property Ownership Transfer</h2>
-        </div>
-
-        {/* Main Form Container */}
-        <div className="bg-white rounded-b-2xl shadow-xl border border-black/5 p-8 border-t-0">
-          
-          {/* Stepper */}
-          <div className="flex items-center justify-between mb-12 relative">
-            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-100 -z-10 -translate-y-1/2"></div>
-            {[
-              { num: 1, label: 'VERIFY', status: 'completed' },
-              { num: 2, label: 'SIGN', status: step === 2 ? 'active' : (step > 2 ? 'completed' : 'pending') },
-              { num: 3, label: 'REVIEW', status: step === 3 ? 'active' : (step > 3 ? 'completed' : 'pending') },
-              { num: 4, label: 'MINT', status: step === 4 ? 'active' : 'pending' }
-            ].map((s) => (
-              <div key={s.num} className="flex flex-col items-center bg-white px-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mb-2 transition-colors ${
-                  s.status === 'completed' ? 'bg-status-verified text-white' : 
-                  s.status === 'active' ? 'bg-accent-orange text-white ring-4 ring-accent-orange/20' : 
-                  'bg-gray-100 text-gray-400'
-                }`}>
-                  {s.status === 'completed' ? <CheckCircle className="w-4 h-4" /> : s.num}
-                </div>
-                <span className={`text-[10px] font-bold tracking-wider ${s.status === 'active' ? 'text-accent-orange' : 'text-gray-400'}`}>{s.label}</span>
+        {/* Progress System */}
+        <div className="mb-8 px-4">
+          <div className="flex justify-between items-center relative">
+            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -z-10 -translate-y-1/2" />
+            <motion.div 
+                className="absolute top-1/2 left-0 h-0.5 bg-accent-teal -z-10 -translate-y-1/2 transition-all duration-500"
+                style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+            />
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex flex-col items-center">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => index < currentStep && setCurrentStep(index)}
+                  className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative z-10",
+                    index < currentStep ? "bg-accent-teal text-white shadow-lg" :
+                    index === currentStep ? "bg-white border-2 border-accent-teal text-accent-teal shadow-xl ring-4 ring-accent-teal/10" :
+                    "bg-white border border-gray-200 text-gray-400 shadow-sm"
+                  )}
+                >
+                  {index < currentStep ? <Check className="w-5 h-5" /> : step.icon}
+                </motion.button>
+                <span className={cn(
+                  "text-[10px] mt-2 font-bold tracking-widest uppercase transition-colors duration-300",
+                  index === currentStep ? "text-accent-teal" : "text-gray-400"
+                )}>
+                  {step.title}
+                </span>
               </div>
             ))}
           </div>
+        </div>
 
-          {step === 2 ? (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Token ID */}
-                <div>
-                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">Property Token ID or Survey No.</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 142 or Survey No. 142" 
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
-                    {...register("tokenId")}
-                  />
-                </div>
+        {/* Form Card */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+        >
+          <Card className="border-none shadow-[0_20px_50px_rgba(0,0,0,0.08)] rounded-[2.5rem] bg-white/80 backdrop-blur-xl overflow-hidden border border-white/20">
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={currentStep}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={contentVariants}
+                >
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-2xl">{steps[currentStep].title}</CardTitle>
+                        <CardDescription>Complete the details for this transaction phase</CardDescription>
+                    </CardHeader>
 
-                {/* Current Owner */}
-                <div>
-                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">Current Owner</label>
-                  <input 
-                    type="text" 
-                    placeholder="Ramesh Kumar or 0x..." 
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
-                    {...register("currentOwner")}
-                  />
-                </div>
+                    <CardContent className="space-y-6 pt-4">
+                        {/* Step 1: Deed Details */}
+                        {currentStep === 0 && (
+                            <>
+                                <div className="space-y-6">
+                                    <div className="space-y-3">
+                                        <Label className="text-[11px] uppercase tracking-wider text-gray-500 font-bold">Property Token ID / Survey No.</Label>
+                                        <Input {...register("tokenId")} placeholder="e.g. Survey 142B" className="bg-white border-gray-200" />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label className="text-[11px] uppercase tracking-wider text-gray-500 font-bold">Current Registered Owner</Label>
+                                        <Input {...register("currentOwner")} placeholder="Full Name as per records" className="bg-white border-gray-200" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-x-6 gap-y-8">
+                                        <div className="space-y-3">
+                                            <Label className="text-[11px] uppercase tracking-wider text-gray-500 font-bold">Land Classification</Label>
+                                            <Select 
+                                                defaultValue={formData.landType} 
+                                                onValueChange={(val) => setValue("landType", val)}
+                                            >
+                                                <SelectTrigger className="w-full bg-white border-gray-200">
+                                                    <SelectValue placeholder="Select Type" />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-white border-gray-200 shadow-2xl z-[200]">
+                                                    <SelectItem value="Residential">Residential Plot</SelectItem>
+                                                    <SelectItem value="Agricultural">Agricultural Land</SelectItem>
+                                                    <SelectItem value="Commercial">Commercial Property</SelectItem>
+                                                    <SelectItem value="Industrial">Industrial Zone</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <Label className="text-[11px] uppercase tracking-wider text-gray-500 font-bold">Total Land Area</Label>
+                                            <Input {...register("area")} placeholder="e.g. 2.4 Acres" className="bg-white border-gray-200" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
-                {/* Buyer Aadhaar/PAN */}
-                <div>
-                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">Buyer Aadhaar / PAN (Hash)</label>
-                  <input 
-                    type="text" 
-                    placeholder="ABCDE1234F" 
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
-                    {...register("buyerId")}
-                  />
-                </div>
+                        {/* Step 2: Parties */}
+                        {currentStep === 1 && (
+                            <>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Buyer Identity Hash (Aadhaar/PAN)</Label>
+                                        <Input {...register("buyerId")} placeholder="Cryptographic Identity String" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>New Owner Legal Name</Label>
+                                        <Input {...register("buyerName")} placeholder="Full Name of Transferee" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>New Owner Wallet Address</Label>
+                                        <Input {...register("newWallet")} placeholder="0x..." className="font-mono text-xs" />
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
-                {/* Buyer Name */}
-                <div>
-                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">New Owner Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Ananya Rao" 
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
-                    {...register("buyerName")}
-                  />
-                </div>
+                        {/* Step 3: Location */}
+                        {currentStep === 2 && (
+                            <div className="space-y-4">
+                                <Label>Pin-point Exact Plot Location</Label>
+                                <Suspense fallback={<div className="h-64 bg-gray-100 animate-pulse rounded-2xl" />}>
+                                    <LocationPicker onLocationConfirmed={setConfirmedLocation} />
+                                </Suspense>
+                                {confirmedLocation && (
+                                    <div className="p-3 bg-accent-teal/5 border border-accent-teal/20 rounded-2xl flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <CheckCircle className="w-5 h-5 text-accent-teal" />
+                                            <div>
+                                                <p className="text-xs font-bold text-accent-teal">Location Confirmed</p>
+                                                <p className="text-[10px] text-gray-500 truncate max-w-[200px]">{confirmedLocation.address}</p>
+                                            </div>
+                                        </div>
+                                        <Button variant="ghost" size="sm" onClick={() => setConfirmedLocation(null)} className="h-8 text-xs">Reset</Button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
-                {/* New Owner Wallet */}
-                <div>
-                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">New Owner Wallet Address</label>
-                  <input 
-                    type="text" 
-                    placeholder="0x..." 
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow font-mono"
-                    {...register("newWallet")}
-                  />
-                </div>
+                        {/* Step 4: Financials */}
+                        {currentStep === 3 && (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label>Total Consideration (INR)</Label>
+                                    <Input {...register("value")} placeholder="₹ 0.00" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Stamp Duty %</Label>
+                                    <Input type="number" step="0.1" {...register("stampDuty")} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Additional Transaction Notes</Label>
+                                    <Textarea {...register("additionalNotes")} placeholder="Any contractual caveats..." />
+                                </div>
+                            </div>
+                        )}
 
-                {/* Transfer Value INR */}
-                <div>
-                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">Transfer Value (INR)</label>
-                  <input 
-                    type="text" 
-                    placeholder="₹ 0.00" 
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
-                    {...register("value")}
-                  />
-                </div>
+                        {/* Step 5: Review & Mint */}
+                        {currentStep === 4 && (
+                            <div className="space-y-4 py-2 text-sm">
+                                <div className="p-4 bg-gray-50 rounded-2xl space-y-3">
+                                    <div className="flex justify-between border-b pb-2"><span className="text-gray-500">Property</span><span className="font-bold">{formData.tokenId}</span></div>
+                                    <div className="flex justify-between border-b pb-2"><span className="text-gray-500">New Owner</span><span className="font-bold">{formData.buyerName}</span></div>
+                                    <div className="flex justify-between border-b pb-2"><span className="text-gray-500">Value</span><span className="font-bold">₹ {formData.value}</span></div>
+                                    <div className="flex justify-between"><span className="text-gray-500">Land Type</span><span className="font-bold">{formData.landType}</span></div>
+                                </div>
+                                <div className="flex gap-3 p-4 bg-accent-orange/5 border border-accent-orange/20 rounded-2xl">
+                                    <AlertCircle className="w-5 h-5 text-accent-orange shrink-0" />
+                                    <p className="text-[11px] text-accent-orange/80 leading-relaxed font-medium">Warning: Clicking Mint will anchor this data to the blockchain. This record is immutable and legally binding upon confirmation.</p>
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
 
-                {/* Land Type */}
-                <div>
-                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">Land Classification</label>
-                  <select 
-                    {...register("landType")}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
-                  >
-                    <option value="Agricultural">Agricultural Land</option>
-                    <option value="Commercial">Commercial Property</option>
-                    <option value="Residential">Residential Plot</option>
-                    <option value="Industrial">Industrial Zone</option>
-                  </select>
-                </div>
+                    <CardFooter className="flex justify-between pt-6 border-t border-gray-100">
+                        <Button
+                            variant="outline"
+                            onClick={handleBack}
+                            disabled={currentStep === 0 || isSubmitting}
+                            className="rounded-xl px-6"
+                        >
+                            <ChevronLeft className="w-4 h-4 mr-2" /> Back
+                        </Button>
+                        
+                        <Button
+                            onClick={currentStep === steps.length - 1 ? handleSubmit(onSubmit) : handleNext}
+                            disabled={!isStepValid() || isSubmitting}
+                            className={cn(
+                                "rounded-xl px-8 transition-all duration-300",
+                                currentStep === steps.length - 1 ? "bg-accent-orange hover:bg-accent-orange/90" : "bg-accent-teal hover:bg-accent-teal/90"
+                            )}
+                        >
+                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                            {currentStep === steps.length - 1 ? "Mint Record" : "Continue"}
+                            {currentStep !== steps.length - 1 && <ChevronRight className="w-4 h-4 ml-2" />}
+                        </Button>
+                    </CardFooter>
+                </motion.div>
+            </AnimatePresence>
+          </Card>
+        </motion.div>
 
-                {/* Land Area */}
-                <div>
-                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">Total Land Area</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 2.4 Acres or 1200 Sq.Ft" 
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
-                    {...register("area")}
-                  />
-                </div>
-
-                {/* Location/District */}
-                <div>
-                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">District / Location</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Jaipur, Rajasthan" 
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
-                    {...register("location")}
-                  />
-                </div>
-
-                {/* Stamp Duty %} */}
-                <div className="md:col-span-2 lg:col-span-1">
-                  <label className="block text-xs font-bold text-primary-main uppercase tracking-wide mb-2">Stamp Duty %</label>
-                  <input 
-                    type="number" 
-                    step="0.1"
-                    placeholder="5.0" 
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:border-accent-teal focus:ring-1 focus:ring-accent-teal outline-none transition-shadow"
-                    {...register("stampDuty")}
-                  />
-                </div>
-              </div>
-
-              <div className="bg-primary-main/5 border border-primary-main/10 rounded-xl p-4 flex gap-4 mt-4">
-                <AlertCircle className="w-6 h-6 text-accent-teal shrink-0" />
-                <p className="text-sm text-primary-main/80 font-medium">Please ensure both parties have verified their identity offline before signing this transaction. The smart contract state will be immutable once minted.</p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-100 justify-end">
-                <button type="button" className="px-6 py-3 font-medium text-gray-500 hover:text-primary-main transition-colors">
-                  Cancel
-                </button>
-                <button type="submit" className="btn-primary px-8">
-                  Sign Transaction <span className="ml-2 font-serif text-lg leading-none">◌</span>
-                </button>
-              </div>
-            </form>
-          ) : step === 3 ? (
-            <motion.div animate={{ opacity: 1, scale: 1 }} initial={{ opacity: 0, scale: 0.95 }} className="py-16 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 border-4 border-accent-orange/20 border-t-accent-orange rounded-full animate-spin mb-6"></div>
-              <h3 className="text-2xl font-serif font-bold text-primary-main mb-2">Reviewing Transaction</h3>
-              <p className="text-gray-500 mb-8 max-w-md">Our Web3 portal is formatting your data and verifying zero-knowledge hashes against the contract parameters.</p>
-              <button type="button" onClick={onApprove} className="btn-accent px-8">
-                Approve & Mint to Block
-              </button>
-            </motion.div>
-          ) : (
-             <motion.div animate={{ opacity: 1, scale: 1 }} initial={{ opacity: 0, scale: 0.95 }} className="py-20 flex flex-col items-center justify-center text-center">
-              <div className="w-20 h-20 border-[6px] border-accent-teal/20 border-t-accent-teal rounded-full animate-spin mb-6"></div>
-              <h3 className="text-2xl font-serif font-bold text-primary-main mb-2">Minting to Blockchain</h3>
-              <p className="text-gray-500 font-mono text-sm max-w-md">Awaiting block confirmation on distributed network... Do not close window.</p>
-            </motion.div>
-          )}
-
+        {/* Footer info */}
+        <div className="mt-8 text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+            Step {currentStep + 1} of {steps.length} &mdash; {steps[currentStep].title}
         </div>
       </div>
-    
-    {/* Success Alert Overlay */}
-    <div className={`fixed inset-0 flex items-center justify-center z-[100] ${isSuccessVisible ? 'pointer-events-auto' : 'pointer-events-none'} p-4`}>
+
+      {/* Success Success Component */}
       <AnimatePresence>
         {isSuccessVisible && (
-          <div className="flex items-center justify-center w-full h-full relative">
-            <AlertCard
-              isVisible={isSuccessVisible}
-              title="Transaction Confirmed"
-              description={`Property Survey No. ${txData?.tokenId} has been successfully minted to the Geo-Trust Ledger. The chain of custody is now updated.`}
-              buttonText="View in Explorer"
-              onButtonClick={() => {
-                setIsSuccessVisible(false);
-                window.location.href = '/explorer';
-              }}
-              onDismiss={() => setIsSuccessVisible(false)}
-              icon={<Bell className="h-6 w-6 text-white" />}
-            />
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm -z-10"
-              onClick={() => setIsSuccessVisible(false)}
-            />
-          </div>
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <AlertCard
+                    isVisible={isSuccessVisible}
+                    title="Transfer Successful"
+                    description={`Property ${formData.tokenId} has been successfully minted to the decentralized registry for ${formData.buyerName}.`}
+                    buttonText="View Records"
+                    onButtonClick={() => window.location.href = '/registry'}
+                    onDismiss={() => setIsSuccessVisible(false)}
+                    icon={<Check className="w-6 h-6 text-white" />}
+                />
+                <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-black/40 backdrop-blur-sm -z-10"
+                    onClick={() => setIsSuccessVisible(false)}
+                />
+            </div>
         )}
       </AnimatePresence>
     </div>
-  </div>
   );
 };
 

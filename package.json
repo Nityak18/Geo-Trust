@@ -1,0 +1,13 @@
+{
+  "name": "geotrust-root",
+  "version": "1.0.0",
+  "description": "Geo-Trust Blockchain Registry Root",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "backend": "cd backend && npm install && node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

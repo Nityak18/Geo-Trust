@@ -46,6 +46,8 @@ Geo-Trust features a modern **Glassmorphism** aesthetic, conveying trust through
 | Layer | Technology |
 | :--- | :--- |
 | **Framework** | [React 19](https://reactjs.org/) (Strict Mode) |
+| **API Backend** | [Node.js](https://nodejs.org/) + [Express](https://expressjs.com/) |
+| **Database** | [MongoDB Atlas](https://www.mongodb.com/atlas/database) (NoSQL Ecosystem) |
 | **GIS / Mapping** | [Leaflet](https://leafletjs.com/) + [OpenStreetMap](https://www.openstreetmap.org/) |
 | **Build Tool** | [Vite](https://vitejs.dev/) (Ultra-fast HMR) |
 | **Styling** | [Tailwind CSS](https://tailwindcss.com/) + [Vanilla CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) |
